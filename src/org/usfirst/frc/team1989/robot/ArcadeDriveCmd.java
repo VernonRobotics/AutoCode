@@ -16,16 +16,16 @@ public class ArcadeDriveCmd extends a_cmd {
 	public ArrayList<cmd> list;
 	JsScaled driveStick;
 	RobotDrive rd;
-	Timer autoStraight;
-	Timer autoTurn;
+	Timer autoStraight = new Timer();
+	Timer autoTurn = new Timer();
 	double currentDistance;
-	Timer rangeTimer;
-	AnalogInput rangefinder;
+	Timer rangeTimer = new Timer();
+
 	
 	
 
 	/*
-	 * Main controller for use.  Basasd on 4 motors anda  speed controller.
+	 * Main controller for use.  Based on 4 motors and a speed controller.
 	 */
 	public ArcadeDriveCmd(int frontLeftMotor, int rearLeftMotor, int frontRightMotor, int rearRightMotor, JsScaled driveStick) {
 		rd = new RobotDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
@@ -64,8 +64,8 @@ public class ArcadeDriveCmd extends a_cmd {
 	@Override
 	public void autonomousPeriodic() {
 		
-		autoDriveY(SmartDashboard.getNumber("DB/Slider 0"), SmartDashboard.getNumber("DB/Slider 1"));
-		autoDriveTwist(SmartDashboard.getNumber("DB/Slider 2"), SmartDashboard.getNumber("DB/Slider 3"));
+		autoDriveY(.5, 6);
+		//autoDriveTwist(SmartDashboard.getNumber("DB/Slider 2"), SmartDashboard.getNumber("DB/Slider 3"));
 		
 		arcadeDrive(driveStick.pY, driveStick.pTwist);
 		// TODO Auto-generated method stub
@@ -147,11 +147,11 @@ public class ArcadeDriveCmd extends a_cmd {
 	// Returns average distance if values are close.
 	// Returns last distance if values are not close.
 	public double averageDistance(){
-		double distance1 = rangefinder.getVoltage();
+		double distance1 = Robot.rf1.getVoltage();
 		double distance2;
 		rangeTimer.start();
 			if (rangeTimer.get() > 0.01){
-				distance2 = rangefinder.getVoltage();
+				distance2 = Robot.rf1.getVoltage();
 				rangeTimer.reset();
 				if (Math.abs(distance1 - distance2) < 5){
 					currentDistance = (distance1 + distance2)/2; 	
