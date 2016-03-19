@@ -20,7 +20,8 @@ public class ArcadeDriveCmd extends a_cmd {
 	Timer autoTurn = new Timer();
 	double currentDistance;
 	Timer rangeTimer = new Timer();
-
+	Timer test1 = new Timer();
+	boolean shutdown = false;
 	
 	
 
@@ -58,16 +59,41 @@ public class ArcadeDriveCmd extends a_cmd {
 	@Override
 	public void autonomousInit() {
 		// TODO Auto-generated method stub
+		
+		autoStraight.start();
+		test1.start();
+		shutdown = false;
 
 	}
 
 	@Override
 	public void autonomousPeriodic() {
 		
-		autoDriveY(.5, 6);
 		//autoDriveTwist(SmartDashboard.getNumber("DB/Slider 2"), SmartDashboard.getNumber("DB/Slider 3"));
+		autoDriveY(.69, 7);
+		double madj = 0.0;
 		
-		arcadeDrive(driveStick.pY, driveStick.pTwist);
+		if(test1.get() > .2)
+		{
+			test1.reset();
+			
+			if (frontRightMotor.getOutputCurrent() > 16 || frontLeftMotor.getOutputCurrent() > 16)
+			{
+				shutdown = true;
+				System.out.println("crash");
+			}
+		}
+		
+		if (shutdown)
+		{
+			return;
+		}
+		if (driveStick.pY !=0)
+		{
+			madj = (driveStick.pY > 0 ? - .22 : 0.1);
+		}
+		
+		arcadeDrive(driveStick.pY, driveStick.pTwist + madj);
 		// TODO Auto-generated method stub
 		
 
@@ -77,6 +103,7 @@ public class ArcadeDriveCmd extends a_cmd {
 	@Override
 	public void testInit() {
 		// TODO Auto-generated method stub
+		test1.start();
 
 	}
 
@@ -88,20 +115,41 @@ public class ArcadeDriveCmd extends a_cmd {
 
 	@Override
 	public void teleopPeriodic() {
-		// TODO Auto-generated method stub
-		arcadeDrive(0 - driveStick.sgetY(), 0-driveStick.sgetTwist()*.75);
+		// TODO Auto-generated method st
+		double madj = 0.0;
+		
+		if (driveStick.sgetY() !=0)
+		{
+		 madj = (driveStick.sgetY() < 0 ? - .22 : 0.1);
+		}
+		arcadeDrive(0 - driveStick.sgetY(), 0-driveStick.sgetTwist()*.75 + madj);
 	}
 
 	@Override
 	public void testPeriodic() {
 		// TODO Auto-generated method stub
-		arcadeDrive(0 - driveStick.sgetY(), 0-driveStick.sgetTwist()*.75);
+		
+        double madj;
+        
+        
+		arcadeDrive(0 - driveStick.sgetY(), 0-driveStick.sgetTwist()*.75 -.224);
+	
+		if (test1.get() > .25)
+		{
+			test1.stop();
+			test1.reset();
+			test1.start();
+			double ir =  (frontRightMotor.getOutputCurrent() *100);
+			double il =  (frontLeftMotor.getOutputCurrent() *100);
+			double sy = (driveStick.sgetY() * 100);
+			System.out.println("speed " + sy + " left I " + il + " right I " + ir);
+	}
+		
 		
 	}
 	
 	// Autonomous method to drive either forwards or backwards
 	public void autoDriveY(double driveSpeedY, double driveTime){
-		autoStraight.start();
 		if(autoStraight.get() < driveTime){
 		driveStick.pY = driveSpeedY;
 		}

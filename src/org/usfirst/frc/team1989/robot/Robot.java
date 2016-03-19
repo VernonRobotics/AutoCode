@@ -21,13 +21,11 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class Robot extends a_cmd {
 
-	
-	
 	int state = 0;
 
 	double driveramp = 6.0;
 	int driveTime;
-	
+
 	// Instantiating Timer
 	Timer t1 = new Timer();
 
@@ -42,13 +40,13 @@ public class Robot extends a_cmd {
 
 	// Instantiate RangeFinder
 	static AnalogInput rf1 = new AnalogInput(3);
-		
+
 	// Instantiating writmessage
 	writemessage wmsg = new writemessage();
 
 	// ArcadeDriveCMD Constructor - 4 motors
-	ArcadeDriveCmd aDrive = new ArcadeDriveCmd(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor, driveStick);
-
+	ArcadeDriveCmd aDrive = new ArcadeDriveCmd(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor,
+			driveStick);
 
 	ShooterCmd shooter = new ShooterCmd(driveStick, s1);
 	ArmsCmd arms = new ArmsCmd(driveStick);
@@ -65,7 +63,6 @@ public class Robot extends a_cmd {
 
 		System.out.println("i'm Alive");
 
-		
 		// Construct CMD List
 		SharedStuff.cmdlist.add(aDrive);
 		SharedStuff.cmdlist.add(shooter);
@@ -125,28 +122,33 @@ public class Robot extends a_cmd {
 	}
 
 	public void autoGuillotine() {
-		if (driveStick.getRawButton(7)) {
+		if (driveStick.getRawButton(7) && state == 0) {
+			System.out.println("State to 1");
 			state = 1;
 		}
 		if (state > 0) {
 			if (state == 1) {
+				System.out.println("State to 2");
 				state = 2;
 				armMotor1.set(-.8);
-				armMotor1.set(-.8);
-				t1.reset();
+				armMotor2.set(-.8);
 				t1.stop();
 				t1.start();
 				driveStick.pY = 0;
 				aDrive.autonomousPeriodic();
 			} else if (state == 2) {
+
+//				System.out.println("I made it to state 2");
 				armMotor1.set(-.5);
 				armMotor2.set(-.5);
 				aDrive.autonomousPeriodic();
 				if (t1.get() > .5) {
 					driveStick.pY = .65;
+					System.out.println("State to 3");
 					state = 3;
 				}
 			} else if (state == 3) {
+				driveStick.pY = .65;
 				armMotor1.set(-.5);
 				armMotor2.set(-.5);
 				aDrive.autonomousPeriodic();
@@ -155,7 +157,7 @@ public class Robot extends a_cmd {
 					t1.stop();
 					driveStick.pY = 0;
 					armMotor1.set(0);
-					armMotor1.set(0);
+					armMotor2.set(0);
 					state = 0;
 
 				}
@@ -169,42 +171,49 @@ public class Robot extends a_cmd {
 	 */
 
 	public void teleopPeriodic() {
-		//gyrotest should display stuff at th display in string 2 on down
-		
-		double distance = rf1.getVoltage() *102.4;
+
+		double distance = rf1.getVoltage() * 102.4;
 		SharedStuff.msg[1] = "RF: " + new Integer((int) distance).toString();
-		if (t1.get() > .25)
-		{
-		//Double angle = gyro.getAngle();
-		Double xVal = b_acc.getX(); 
-		Double yVal = b_acc.getY(); 
-		Double zVal = b_acc.getZ(); 
-		//Integer ia = new Integer(angle.intValue()* 100);
-		SharedStuff.msg[7] = " x  " + xVal.toString();
-		//SharedStuff.msg[6] = " angle  " +  angle.toString();
-		SharedStuff.msg[8] = " y  " + yVal.toString();
-		SharedStuff.msg[9] = " z  " + zVal.toString();
-		
-			t1.reset();
-			//System.out.print(" angle  " + angle.toString());
-			System.out.print(" x  " + xVal.toString());
-			System.out.print(" y  " + yVal.toString());
-			System.out.println(" z  " + zVal.toString()) ;
-			
-		}
-		// Output RangeFinder Distance
-		// rangeFinder.setDistance();
-		
-		autoGuillotine();
-		
-		for (int i = 0; i < SharedStuff.cmdlist.size(); i++) {
-				SharedStuff.cmdlist.get(i).teleopPeriodic();
+		if (t1.get() > .25) {
+			// Double angle = gyro.getAngle();
+			Double xVal = b_acc.getX();
+			Double yVal = b_acc.getY();
+			Double zVal = b_acc.getZ();
+			// Integer ia = new Integer(angle.intValue()* 100);
+			/*
+			 * SharedStuff.msg[7] = " x  " + xVal.toString();
+			 * //SharedStuff.msg[6] = " angle  " + angle.toString();
+			 * SharedStuff.msg[8] = " y  " + yVal.toString(); SharedStuff.msg[9]
+			 * = " z  " + zVal.toString();
+			 * 
+			 * t1.reset(); //System.out.print(" angle  " + angle.toString());
+			 * System.out.print(" x  " + xVal.toString()); System.out.print(
+			 * " y  " + yVal.toString()); System.out.println(" z  " +
+			 * zVal.toString()) ;
+			 * 
+			 * }
+			 */
+			// Output RangeFinder Distance
+			// rangeFinder.setDistance();
+
+			if (driveStick.getRawButton(7) || state > 0) {
+				autoGuillotine();
+			} 
+			if (state == 0) {
+				for (int i = 0; i < SharedStuff.cmdlist.size(); i++) {
+					SharedStuff.cmdlist.get(i).teleopPeriodic();
+				}
+			}
+
 		}
 	}
 
 	public void testInit() {
 		t1.start();
 		state = 0;
+		for (int i = 0; i < SharedStuff.cmdlist.size(); i++) {
+			SharedStuff.cmdlist.get(i).testInit();
+		}
 	}
 
 	/**
@@ -214,8 +223,13 @@ public class Robot extends a_cmd {
 	public void testPeriodic() {
 		if(driveStick.getRawButton(1) == true){
 			aDrive.rangeFinderDrive(10);
-			
+		
 		}
+		else
+		{
+			for (int i = 0; i < SharedStuff.cmdlist.size(); i++) {
+				SharedStuff.cmdlist.get(i).testPeriodic();
+			}
 		
 		// Debug Output
 		SharedStuff.msg[0] = " Left I " + frontLeftMotor.getOutputCurrent();
@@ -230,7 +244,8 @@ public class Robot extends a_cmd {
 		SharedStuff.msg[8] = "getpos" + elevator.getPosition();
 		SharedStuff.msg[4] = " sh1 I " + shootMotor1.getOutputCurrent();
 		SharedStuff.msg[9] = "right S " + shootMotor2.getOutputCurrent();
-
+			
+	}
 	}
 
 }
