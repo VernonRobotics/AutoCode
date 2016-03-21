@@ -70,7 +70,7 @@ public class ArcadeDriveCmd extends a_cmd {
 	public void autonomousPeriodic() {
 		
 		//autoDriveTwist(SmartDashboard.getNumber("DB/Slider 2"), SmartDashboard.getNumber("DB/Slider 3"));
-		autoDriveY(.69, 7);
+		/*autoDriveY(.69, 7);
 		double madj = 0.0;
 		
 		if(test1.get() > .2)
@@ -92,8 +92,8 @@ public class ArcadeDriveCmd extends a_cmd {
 		{
 			madj = (driveStick.pY > 0 ? - .22 : 0.1);
 		}
-		
-		arcadeDrive(driveStick.pY, driveStick.pTwist + madj);
+		*/
+		arcadeDrive(driveStick.pY, driveStick.pTwist);// + madj);
 		// TODO Auto-generated method stub
 		
 
@@ -144,12 +144,12 @@ public class ArcadeDriveCmd extends a_cmd {
 			double sy = (driveStick.sgetY() * 100);
 			System.out.println("speed " + sy + " left I " + il + " right I " + ir);
 	}
-		
-		
 	}
+	}	
+	
 	
 	// Autonomous method to drive either forwards or backwards
-	public void autoDriveY(double driveSpeedY, double driveTime){
+/*	public void autoDriveY(double driveSpeedY, double driveTime){
 		if(autoStraight.get() < driveTime){
 		driveStick.pY = driveSpeedY;
 		}
@@ -211,7 +211,7 @@ public class ArcadeDriveCmd extends a_cmd {
 		return currentDistance;
 	}
 
-}
+}*/
 
 
 	

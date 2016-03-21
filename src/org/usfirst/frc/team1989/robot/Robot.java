@@ -28,6 +28,10 @@ public class Robot extends a_cmd {
 
 	// Instantiating Timer
 	Timer t1 = new Timer();
+	Timer autoStraight = new Timer();
+	Timer autoTurn = new Timer(); 
+	Timer rangeTimer = new Timer();
+	Timer test1 = new Timer();
 
 	// Instantiating Servo
 	Servo s1 = new Servo(0);
@@ -48,6 +52,8 @@ public class Robot extends a_cmd {
 	ArcadeDriveCmd aDrive = new ArcadeDriveCmd(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor,
 			driveStick);
 
+	Autonomous auto = new Autonomous(driveStick, autoStraight, autoTurn, rangeTimer, test1);
+	
 	ShooterCmd shooter = new ShooterCmd(driveStick, s1);
 	ArmsCmd arms = new ArmsCmd(driveStick);
 
@@ -70,6 +76,7 @@ public class Robot extends a_cmd {
 		SharedStuff.cmdlist.add(shooter2);
 		SharedStuff.cmdlist.add(arms2);
 		SharedStuff.cmdlist.add(wmsg);
+		SharedStuff.cmdlist.add(auto);
 		// can update first
 
 		// Limit Switches- In for now, will be changed to CAN network
@@ -222,7 +229,7 @@ public class Robot extends a_cmd {
 	 */
 	public void testPeriodic() {
 		if(driveStick.getRawButton(1) == true){
-			aDrive.rangeFinderDrive(10);
+			auto.rangeFinderDrive(10);
 		
 		}
 		else
@@ -235,7 +242,7 @@ public class Robot extends a_cmd {
 		SharedStuff.msg[0] = " Left I " + frontLeftMotor.getOutputCurrent();
 		SharedStuff.msg[0] = "RangeFinder Output: " + rf1.getVoltage();
 		SharedStuff.msg[5] = "right I " + frontRightMotor.getOutputCurrent();
-		SharedStuff.msg[5] = "Average Distance Calculation" + aDrive.averageDistance();
+		SharedStuff.msg[5] = "Average Distance Calculation" + auto.averageDistance();
 		SharedStuff.msg[1] = " Left O " + frontLeftMotor.getOutputVoltage();
 		SharedStuff.msg[6] = "right O " + frontRightMotor.getOutputVoltage();
 		SharedStuff.msg[2] = " Left V " + frontLeftMotor.getBusVoltage();
